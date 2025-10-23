@@ -650,10 +650,15 @@
                 
                 // Mostrar status da fonte de dados
                 const dataSourceEl = document.getElementById('dataSource');
+                const savedItems = localStorage.getItem('achadosPerdidosItems');
+                const lastUpdate = localStorage.getItem('achadosPerdidosLastUpdate');
+                
                 if (savedItems && lastUpdate) {
                     const updateDate = new Date(lastUpdate).toLocaleString('pt-BR');
                     dataSourceEl.innerHTML = `🔄 Atualizado: ${updateDate.split(' ')[0]}`;
                     console.log(`🔄 Última atualização pelo admin: ${updateDate}`);
+                } else if (apiOnline) {
+                    dataSourceEl.innerHTML = `🌐 API Online`;
                 } else {
                     dataSourceEl.innerHTML = `📁 Dados originais`;
                 }
