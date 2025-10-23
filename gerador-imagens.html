@@ -1,0 +1,117 @@
+<!-- Arquivo HTML para gerar imagens placeholder -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Gerador de Imagens Placeholder</title>
+</head>
+<body>
+    <h2>Instruções para Adicionar Imagens</h2>
+    <p>Como as imagens não existem ainda, você tem algumas opções:</p>
+    
+    <h3>📱 Opção 1 - Usar placeholders online:</h3>
+    <p>Substitua os links no items.json por placeholders online:</p>
+    <ul>
+        <li><strong>carteira-marrom-001.jpg</strong> → <code>https://via.placeholder.com/800x600/8B4513/FFFFFF?text=Carteira+Marrom</code></li>
+        <li><strong>oculos-rayban-002.jpg</strong> → <code>https://via.placeholder.com/800x600/000000/FFFFFF?text=Óculos+Ray-Ban</code></li>
+        <li><strong>chaves-batman-003.jpg</strong> → <code>https://via.placeholder.com/800x600/FFD700/000000?text=Chaves+Batman</code></li>
+    </ul>
+
+    <h3>📷 Opção 2 - Adicionar fotos reais:</h3>
+    <ol>
+        <li>Tire fotos dos objetos encontrados</li>
+        <li>Redimensione para 800×600 ou 1200×800 pixels</li>
+        <li>Salve na pasta <code>images/</code> com os nomes corretos</li>
+        <li>Mantenha o peso abaixo de 300 KB</li>
+    </ol>
+
+    <h3>🎨 Opção 3 - Usar este gerador:</h3>
+    <p>Clique nos botões abaixo para baixar placeholders coloridos:</p>
+    
+    <button onclick="downloadPlaceholder('carteira-marrom-001.jpg', '#8B4513', 'Carteira Marrom')">
+        📄 Baixar Carteira Marrom
+    </button>
+    
+    <button onclick="downloadPlaceholder('oculos-rayban-002.jpg', '#1a1a1a', 'Óculos Ray-Ban')">
+        🕶️ Baixar Óculos Ray-Ban  
+    </button>
+    
+    <button onclick="downloadPlaceholder('chaves-batman-003.jpg', '#FFD700', 'Chaves Batman')">
+        🔑 Baixar Chaves Batman
+    </button>
+
+    <script>
+        function downloadPlaceholder(filename, color, text) {
+            // Criar canvas
+            const canvas = document.createElement('canvas');
+            canvas.width = 800;
+            canvas.height = 600;
+            const ctx = canvas.getContext('2d');
+            
+            // Fundo colorido
+            ctx.fillStyle = color;
+            ctx.fillRect(0, 0, 800, 600);
+            
+            // Texto
+            ctx.fillStyle = color === '#FFD700' ? '#000' : '#FFF';
+            ctx.font = 'bold 48px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(text, 400, 280);
+            
+            // Emoji/ícone
+            ctx.font = '120px Arial';
+            const emoji = filename.includes('carteira') ? '👛' : 
+                         filename.includes('oculos') ? '🕶️' : '🔑';
+            ctx.fillText(emoji, 400, 200);
+            
+            // Informações adicionais
+            ctx.font = '24px Arial';
+            ctx.fillText('Instituto da Oportunidade Social', 400, 350);
+            ctx.fillText('Achados & Perdidos', 400, 380);
+            
+            // Download
+            canvas.toBlob(function(blob) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }, 'image/jpeg', 0.8);
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        button {
+            background: #0095f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            margin: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #1877f2;
+        }
+        code {
+            background: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        ul, ol {
+            margin-left: 20px;
+        }
+    </style>
+</body>
+</html>

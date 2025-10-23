@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Achados e Perdidos do Instituto da Oportunidade Social - Encontre seus objetos perdidos">
+    <title>Achados e Perdidos — Instituto da Oportunidade Social</title>
+    
+    <!-- API JavaScript -->
+    <script src="api.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #fafafa;
+            color: #262626;
+            line-height: 1.5;
+        }
+
+        /* Header estilo Instagram */
+        .header {
+            background: white;
+            border-bottom: 1px solid #dbdbdb;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 12px 16px;
+        }
+
+        .header-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #8B5A96 0%, #FF8C42 50%, #8B5A96 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-align: center;
+        }
+
+        .subtitle {
+            font-size: 0.7rem;
+            color: #8e8e8e;
+            text-align: center;
+            margin-top: 2px;
+            font-weight: 400;
+        }
+
+        /* Search estilo Instagram */
+        .search-container {
+            background: white;
+            padding: 12px 16px;
+            border-bottom: 1px solid #dbdbdb;
+        }
+
+        .search-wrapper {
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 16px 10px 40px;
+            background: #efefef;
+            border: 1px solid #dbdbdb;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #262626;
+        }
+
+        .search-input::placeholder {
+            color: #8e8e8e;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #8B5A96;
+            background: white;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #8e8e8e;
+            font-size: 16px;
+        }
+
+        .admin-link {
+            text-align: center;
+            margin-top: 8px;
+        }
+
+        .data-source {
+            font-size: 10px;
+            color: #8e8e8e;
+            margin-top: 4px;
+        }
+
+        /* Container principal */
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 0;
+        }
+
+        /* Posts estilo Instagram */
+        .items-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .item-card {
+            background: white;
+            border: 1px solid #dbdbdb;
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .item-card.claimed {
+            opacity: 0.7;
+        }
+
+        .item-card.claimed {
+            display: none; /* Itens reclamados ficam ocultos do feed */
+        }
+
+        /* Header do post */
+        .post-header {
+            display: flex;
+            align-items: center;
+            padding: 14px 16px;
+            border-bottom: 1px solid #efefef;
+        }
+
+        .post-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #8B5A96 0%, #FF8C42 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+            margin-right: 12px;
+        }
+
+        .post-info h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin: 0;
+            color: #262626;
+        }
+
+        .post-location {
+            font-size: 11px;
+            color: #8e8e8e;
+            margin: 0;
+        }
+
+        /* Imagem do post */
+        .item-image {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            background: #f6f6f6;
+            display: block;
+        }
+
+        .item-image-placeholder {
+            width: 100%;
+            height: 400px;
+            background: #f6f6f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #8e8e8e;
+            font-size: 14px;
+        }
+
+        /* Ações do post */
+        .post-actions {
+            display: flex;
+            align-items: center;
+            padding: 8px 16px;
+            gap: 16px;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            font-size: 20px;
+            color: #262626;
+            transition: transform 0.1s;
+        }
+
+        .action-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .action-btn.liked {
+            color: #ed4956;
+        }
+
+        /* Conteúdo do post */
+        .post-content {
+            padding: 0 16px 16px;
+        }
+
+        .post-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #262626;
+        }
+
+        .post-description {
+            font-size: 14px;
+            color: #262626;
+            line-height: 1.4;
+            margin-bottom: 8px;
+        }
+
+        .post-date {
+            font-size: 10px;
+            color: #8e8e8e;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Comentários */
+        .comments-section {
+            border-top: 1px solid #efefef;
+            padding: 12px 16px 8px;
+        }
+
+        .comments-list {
+            max-height: 150px;
+            overflow-y: auto;
+            margin-bottom: 12px;
+        }
+
+        .comment {
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: #262626;
+        }
+
+        .comment-author {
+            font-weight: 600;
+            color: #8B5A96;
+        }
+
+        .comment-form {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .comment-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #dbdbdb;
+            border-radius: 20px;
+            font-size: 14px;
+            background: #fafafa;
+        }
+
+        .comment-input:focus {
+            outline: none;
+            border-color: #8B5A96;
+            background: white;
+        }
+
+        .comment-btn {
+            background: none;
+            border: none;
+            color: #8B5A96;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .comment-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        /* Modal de Reclamação */
+        .claim-modal {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .claim-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #8B5A96;
+            border-radius: 8px;
+            font-size: 16px;
+            margin: 16px 0;
+            text-align: center;
+        }
+
+        .claim-warning {
+            background: #FFF3CD;
+            color: #856404;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 16px 0;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        /* Modal estilo Instagram */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            border-radius: 12px;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-header {
+            padding: 16px;
+            border-bottom: 1px solid #efefef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #262626;
+        }
+
+        .close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #8e8e8e;
+            padding: 0;
+        }
+
+        .modal-body {
+            padding: 16px;
+        }
+
+        .modal-image {
+            width: 100%;
+            max-height: 300px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .modal-info {
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        .modal-info strong {
+            color: #262626;
+            font-weight: 600;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid #dbdbdb;
+            border-radius: 8px;
+            background: white;
+            color: #262626;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: #8B5A96;
+            color: white;
+            border-color: #8B5A96;
+        }
+
+        .btn-primary:hover {
+            background: #7A4A85;
+        }
+
+        .btn-orange {
+            background: #FF8C42;
+            color: white;
+            border-color: #FF8C42;
+        }
+
+        .btn-orange:hover {
+            background: #E67A35;
+        }
+
+        .btn-success {
+            background: #00ba7c;
+            color: white;
+            border-color: #00ba7c;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        /* Estados vazios */
+        .loading {
+            text-align: center;
+            padding: 40px 20px;
+            color: #8e8e8e;
+        }
+
+        .no-items {
+            text-align: center;
+            padding: 60px 20px;
+            color: #8e8e8e;
+        }
+
+        .no-items-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.6;
+        }
+
+        .error {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 12px 16px;
+            margin: 16px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        /* Responsivo para tablets */
+        @media (min-width: 768px) {
+            .container {
+                max-width: 614px;
+            }
+            
+            .item-card {
+                border-radius: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">Achados & Perdidos</div>
+            <div class="subtitle">Instituto da Oportunidade Social</div>
+        </div>
+    </header>
+
+    <div class="search-container">
+        <div class="search-wrapper">
+            <div class="search-icon">🔍</div>
+            <input 
+                type="text" 
+                id="searchInput" 
+                class="search-input" 
+                placeholder="Buscar objetos perdidos..."
+            >
+        </div>
+        <div class="admin-link">
+            <div id="dataSource" class="data-source"></div>
+        </div>
+    </div>
+
+    <main class="container">
+        <div id="loading" class="loading">
+            <p>📱 Carregando posts...</p>
+        </div>
+        
+        <div id="error" class="error" style="display: none;">
+            <p><strong>Erro:</strong> Não foi possível carregar os objetos.</p>
+        </div>
+
+        <div id="itemsGrid" class="items-grid" style="display: none;">
+            <!-- Posts aparecerão aqui -->
+        </div>
+
+        <div id="noItems" class="no-items" style="display: none;">
+            <div class="no-items-icon">🔍</div>
+            <h2>Nenhum objeto encontrado</h2>
+            <p>Tente ajustar sua busca ou verifique mais tarde.</p>
+        </div>
+    </main>
+
+    <!-- Footer discreto para acesso admin -->
+    <footer style="text-align: center; padding: 2rem 1rem; color: #999; font-size: 0.75rem;">
+        <p>© 2025 Instituto da Oportunidade Social</p>
+        <div style="margin-top: 0.5rem;">
+            <a href="admin.html" style="color: #8B5A96; text-decoration: none; opacity: 0.6;" 
+               onclick="return confirm('🔐 Área restrita - Apenas funcionários autorizados do IOS')">
+                ⚙️ Painel
+            </a>
+        </div>
+    </footer>
+
+    <!-- Modal -->
+    <div id="itemModal" class="modal" role="dialog" aria-labelledby="modalTitle" aria-hidden="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle" class="modal-title"></h2>
+                <button class="close" aria-label="Fechar modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <img id="modalImage" class="modal-image" alt="">
+                <div class="modal-info">
+                    <p><strong>Descrição:</strong> <span id="modalDescription"></span></p>
+                    <p><strong>Encontrado em:</strong> <span id="modalDate"></span></p>
+                    <p><strong>Local:</strong> <span id="modalLocation"></span></p>
+                </div>
+                <div class="modal-actions">
+                    <button id="modalClaimBtn" class="btn btn-orange">🎯 Quero Retirar Este Item</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Reclamação -->
+    <div id="claimModal" class="modal" role="dialog" aria-hidden="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">📋 Reclamar Item</h2>
+                <button class="close" onclick="closeClaimModal()">&times;</button>
+            </div>
+            <div class="modal-body claim-modal">
+                <h3 id="claimItemTitle"></h3>
+                <div class="claim-warning">
+                    ⚠️ <strong>Atenção:</strong><br>
+                    Ao informar seu nome completo, você confirma que este item é seu.
+                    Dirija-se à secretaria do IOS para retirar o objeto.
+                </div>
+                <input 
+                    type="text" 
+                    id="claimNameInput" 
+                    class="claim-input" 
+                    placeholder="Digite seu nome completo"
+                    maxlength="100"
+                >
+                <div style="display: flex; gap: 8px; margin-top: 16px;">
+                    <button onclick="closeClaimModal()" class="btn" style="flex: 1;">Cancelar</button>
+                    <button onclick="confirmClaim()" class="btn btn-orange" style="flex: 1;">✅ Confirmar Reclamação</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let items = [];
+        let filteredItems = [];
+        let claimedItems = [];
+        let comments = {};
+        let claimedData = {};
+
+        // Carregar dados da API
+        async function loadItems() {
+            try {
+                console.log('🔄 Carregando dados da API...');
+                
+                // Tentar conectar com API primeiro
+                const apiOnline = await achadosAPI.checkHealth();
+                
+                if (apiOnline) {
+                    console.log('✅ API online - carregando dados atualizados');
+                    items = await achadosAPI.getItems();
+                    
+                    // Carregar comentários para cada item
+                    for (const item of items) {
+                        const itemComments = await achadosAPI.getComments(item.id);
+                        if (itemComments.length > 0) {
+                            comments[item.id] = itemComments;
+                        }
+                    }
+                } else {
+                    console.log('⚠️ API offline - usando fallback localStorage');
+                    // Fallback para localStorage se API estiver offline
+                    const savedItems = localStorage.getItem('achadosPerdidosItems');
+                    if (savedItems) {
+                        items = JSON.parse(savedItems);
+                        claimedItems = JSON.parse(localStorage.getItem('claimedItems') || '[]');
+                        comments = JSON.parse(localStorage.getItem('itemComments') || '{}');
+                        claimedData = JSON.parse(localStorage.getItem('claimedData') || '{}');
+                        
+                        // Filtrar items não reclamados
+                        items = items.filter(item => !claimedItems.includes(item.id));
+                    } else {
+                        // Último fallback: arquivo JSON
+                        console.log('📁 Carregando dados do arquivo items.json...');
+                        const response = await fetch('items.json');
+                        if (!response.ok) throw new Error('Erro ao carregar');
+                        items = await response.json();
+                    }
+                }
+                
+                // Ordenar por data (mais recentes primeiro)
+                items.sort((a, b) => new Date(b.found_at) - new Date(a.found_at));
+                
+                filteredItems = [...items];
+                displayItems();
+                
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('itemsGrid').style.display = 'flex';
+                
+                // Mostrar status da fonte de dados
+                const dataSourceEl = document.getElementById('dataSource');
+                if (savedItems && lastUpdate) {
+                    const updateDate = new Date(lastUpdate).toLocaleString('pt-BR');
+                    dataSourceEl.innerHTML = `🔄 Atualizado: ${updateDate.split(' ')[0]}`;
+                    console.log(`🔄 Última atualização pelo admin: ${updateDate}`);
+                } else {
+                    dataSourceEl.innerHTML = `📁 Dados originais`;
+                }
+                
+            } catch (error) {
+                console.error('Erro:', error);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').style.display = 'block';
+            }
+        }
+
+        // Exibir items estilo Instagram
+        function displayItems() {
+            const grid = document.getElementById('itemsGrid');
+            const noItems = document.getElementById('noItems');
+            
+            if (filteredItems.length === 0) {
+                grid.style.display = 'none';
+                noItems.style.display = 'block';
+                return;
+            }
+            
+            grid.style.display = 'flex';
+            noItems.style.display = 'none';
+            
+            grid.innerHTML = filteredItems.map(item => renderItem(item)).join('');
+
+            // Event listeners para ações
+            grid.querySelectorAll('.action-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const itemId = parseInt(btn.closest('.item-card').dataset.itemId);
+                    const action = btn.dataset.action;
+                    
+                    if (action === 'details') {
+                        openModal(itemId);
+                    } else if (action === 'like') {
+                        // Toggle like (apenas visual)
+                        btn.classList.toggle('liked');
+                        btn.innerHTML = btn.classList.contains('liked') ? '❤️' : '🤍';
+                    } else if (action === 'claim') {
+                        openClaimModal(itemId);
+                    }
+                });
+            });
+
+            // Event listeners para comentários
+            grid.querySelectorAll('.comment-input').forEach(input => {
+                input.addEventListener('input', (e) => {
+                    const btn = grid.querySelector(`.comment-btn[data-item-id="${e.target.dataset.itemId}"]`);
+                    btn.disabled = e.target.value.trim().length === 0;
+                });
+
+                input.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && e.target.value.trim()) {
+                        addComment(parseInt(e.target.dataset.itemId), e.target.value.trim());
+                        e.target.value = '';
+                        const btn = grid.querySelector(`.comment-btn[data-item-id="${e.target.dataset.itemId}"]`);
+                        btn.disabled = true;
+                    }
+                });
+            });
+
+            grid.querySelectorAll('.comment-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const itemId = parseInt(btn.dataset.itemId);
+                    const input = grid.querySelector(`.comment-input[data-item-id="${itemId}"]`);
+                    const text = input.value.trim();
+                    
+                    if (text) {
+                        addComment(itemId, text);
+                        input.value = '';
+                        btn.disabled = true;
+                    }
+                });
+            });
+        }
+
+        function renderItem(item) {
+            const isClaimed = claimedItems.includes(item.id);
+            const formattedDate = formatRelativeTime(item.found_at);
+            const comments = getComments(item.id);
+            
+            return `
+                <article class="item-card ${isClaimed ? 'claimed' : ''}" data-item-id="${item.id}">
+                    <!-- Header do post -->
+                    <div class="post-header">
+                        <div class="post-avatar">📋</div>
+                        <div class="post-info">
+                            <h3>achados_perdidos_ios</h3>
+                            <p class="post-location">${escapeHtml(item.location || 'Local não informado')}</p>
+                        </div>
+                    </div>
+
+                    <!-- Imagem -->
+                    ${renderItemImage(item)}
+
+                    <!-- Ações -->
+                    <div class="post-actions">
+                        <button class="action-btn" data-action="like">🤍</button>
+                        <button class="action-btn" data-action="details">💬</button>
+                        <button class="action-btn" data-action="claim">🎯</button>
+                    </div>
+
+                    <!-- Conteúdo -->
+                    <div class="post-content">
+                        <div class="post-title">
+                            <strong>achados_perdidos_ios</strong> ${escapeHtml(item.title)}
+                        </div>
+                        <div class="post-description">${escapeHtml(item.description)}</div>
+                        <div class="post-date">${formattedDate}</div>
+                    </div>
+
+                    <!-- Comentários -->
+                    <div class="comments-section">
+                        <div class="comments-list" id="comments-${item.id}">
+                            ${comments.map(comment => `
+                                <div class="comment">
+                                    <span class="comment-author">${escapeHtml(comment.author)}:</span>
+                                    ${escapeHtml(comment.text)}
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="comment-form">
+                            <input 
+                                type="text" 
+                                class="comment-input" 
+                                placeholder="Sabe de quem é? Comente o primeiro nome..."
+                                maxlength="100"
+                                data-item-id="${item.id}"
+                            >
+                            <button class="comment-btn" data-item-id="${item.id}" disabled>Enviar</button>
+                        </div>
+                    </div>
+                </article>
+            `;
+        }
+
+        function renderItemImage(item) {
+            return `
+                <img 
+                    src="${item.image}" 
+                    alt="${escapeHtml(item.title)}"
+                    class="item-image"
+                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                />
+                <div class="item-image-placeholder" style="display: none;">
+                    📷 Imagem não disponível
+                </div>
+            `;
+        }
+
+        // Busca
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const query = e.target.value.toLowerCase();
+            filteredItems = items.filter(item =>
+                item.title.toLowerCase().includes(query) ||
+                item.description.toLowerCase().includes(query) ||
+                (item.location && item.location.toLowerCase().includes(query))
+            );
+            displayItems();
+        });
+
+        // Gerenciar comentários
+        function getComments(itemId) {
+            return comments[itemId] || [];
+        }
+
+        async function addComment(itemId, text) {
+            try {
+                const apiOnline = await achadosAPI.checkHealth();
+                
+                if (apiOnline) {
+                    // Usar API
+                    const comment = await achadosAPI.addComment(itemId, 'Aluno', text);
+                    
+                    // Atualizar cache local
+                    if (!comments[itemId]) {
+                        comments[itemId] = [];
+                    }
+                    comments[itemId].push(comment);
+                } else {
+                    // Fallback localStorage
+                    if (!comments[itemId]) {
+                        comments[itemId] = [];
+                    }
+                    
+                    const comment = {
+                        author: 'Aluno',
+                        text: text,
+                        timestamp: Date.now(),
+                        created_at: new Date().toISOString()
+                    };
+                    
+                    comments[itemId].push(comment);
+                    localStorage.setItem('itemComments', JSON.stringify(comments));
+                }
+                
+                // Atualizar interface
+                const commentsList = document.getElementById(`comments-${itemId}`);
+                if (commentsList) {
+                    commentsList.innerHTML = getComments(itemId).map(comment => `
+                        <div class="comment">
+                            <span class="comment-author">${escapeHtml(comment.author)}:</span>
+                            ${escapeHtml(comment.text)}
+                        </div>
+                    `).join('');
+                }
+                
+                showNotification('Comentário adicionado com sucesso!', 'success');
+            } catch (error) {
+                console.error('Erro ao adicionar comentário:', error);
+                showNotification('Erro ao adicionar comentário. Tente novamente.', 'error');
+            }
+        }
+
+        // Modal de detalhes
+        function openModal(itemId) {
+            const item = items.find(i => i.id === itemId);
+            if (!item) return;
+
+            const modal = document.getElementById('itemModal');
+
+            document.getElementById('modalTitle').textContent = item.title;
+            document.getElementById('modalDescription').textContent = item.description;
+            document.getElementById('modalDate').textContent = new Date(item.found_at).toLocaleDateString('pt-BR');
+            document.getElementById('modalLocation').textContent = item.location || 'Não informado';
+
+            const modalImage = document.getElementById('modalImage');
+            modalImage.src = item.image;
+            modalImage.alt = item.title;
+
+            modal.dataset.itemId = itemId;
+            modal.style.display = 'block';
+            modal.setAttribute('aria-hidden', 'false');
+        }
+
+        // Modal de reclamação
+        function openClaimModal(itemId) {
+            const item = items.find(i => i.id === itemId);
+            if (!item) return;
+
+            document.getElementById('claimItemTitle').textContent = item.title;
+            document.getElementById('claimNameInput').value = '';
+            
+            const modal = document.getElementById('claimModal');
+            modal.dataset.itemId = itemId;
+            modal.style.display = 'block';
+            modal.setAttribute('aria-hidden', 'false');
+            
+            // Focus no input
+            setTimeout(() => {
+                document.getElementById('claimNameInput').focus();
+            }, 100);
+        }
+
+        function closeClaimModal() {
+            const modal = document.getElementById('claimModal');
+            modal.style.display = 'none';
+            modal.setAttribute('aria-hidden', 'true');
+        }
+
+        async function confirmClaim() {
+            const modal = document.getElementById('claimModal');
+            const itemId = parseInt(modal.dataset.itemId);
+            const fullName = document.getElementById('claimNameInput').value.trim();
+            
+            if (!fullName) {
+                alert('❌ Por favor, digite seu nome completo.');
+                return;
+            }
+
+            if (fullName.length < 5) {
+                alert('❌ Por favor, digite seu nome completo (mínimo 5 caracteres).');
+                return;
+            }
+
+            try {
+                const apiOnline = await achadosAPI.checkHealth();
+                
+                if (apiOnline) {
+                    // Usar API
+                    await achadosAPI.claimItem(itemId, fullName);
+                } else {
+                    // Fallback localStorage
+                    claimedData[itemId] = {
+                        claimerName: fullName,
+                        claimDate: new Date().toISOString(),
+                        status: 'claimed'
+                    };
+
+                    claimedItems.push(itemId);
+                    
+                    localStorage.setItem('claimedItems', JSON.stringify(claimedItems));
+                    localStorage.setItem('claimedData', JSON.stringify(claimedData));
+                    localStorage.setItem('achadosPerdidosLastUpdate', new Date().toISOString());
+                }
+
+                closeClaimModal();
+                
+                // Recarregar para atualizar interface
+                setTimeout(() => {
+                    loadItems();
+                    displayItems();
+                }, 500);
+                
+                alert(`✅ Item reclamado com sucesso!\n\n👤 Reclamante: ${fullName}\n📅 Data: ${new Date().toLocaleDateString('pt-BR')}\n\n🏢 Dirija-se à secretaria do IOS para retirar o objeto.`);
+            } catch (error) {
+                console.error('Erro ao reclamar item:', error);
+                alert(`❌ Erro: ${error.message || 'Não foi possível reclamar o item'}`);
+            }
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('itemModal');
+            modal.style.display = 'none';
+            modal.setAttribute('aria-hidden', 'true');
+        }
+
+        // Event listeners
+        document.querySelector('.close').addEventListener('click', closeModal);
+        
+        document.getElementById('itemModal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        document.getElementById('claimModal').addEventListener('click', function(e) {
+            if (e.target === this) closeClaimModal();
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+                closeClaimModal();
+            }
+        });
+
+        document.getElementById('modalClaimBtn').addEventListener('click', function() {
+            const itemId = parseInt(document.getElementById('itemModal').dataset.itemId);
+            closeModal();
+            openClaimModal(itemId);
+        });
+
+        // Enter para confirmar reclamação
+        document.getElementById('claimNameInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                confirmClaim();
+            }
+        });
+
+        // Utility functions
+        function formatRelativeTime(dateString) {
+            const now = new Date();
+            const date = new Date(dateString);
+            const diffTime = Math.abs(now - date);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (diffDays === 1) return 'ONTEM';
+            if (diffDays < 7) return `${diffDays} DIAS ATRÁS`;
+            if (diffDays < 30) return `${Math.floor(diffDays / 7)} SEMANAS ATRÁS`;
+            return date.toLocaleDateString('pt-BR');
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Inicializar
+        loadItems();
+    </script>
+</body>
+</html>

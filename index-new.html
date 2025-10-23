@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Achados e Perdidos do Instituto da Oportunidade Social - Encontre seus objetos perdidos">
+    <title>Achados e Perdidos — Instituto da Oportunidade Social</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #fafafa;
+            color: #262626;
+            line-height: 1.5;
+        }
+
+        /* Header estilo Instagram */
+        .header {
+            background: white;
+            border-bottom: 1px solid #dbdbdb;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 12px 16px;
+        }
+
+        .header-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+        }
+
+        .subtitle {
+            font-size: 0.7rem;
+            color: #8e8e8e;
+            text-align: center;
+            margin-top: 2px;
+            font-weight: 400;
+        }
+
+        /* Search estilo Instagram */
+        .search-container {
+            background: white;
+            padding: 12px 16px;
+            border-bottom: 1px solid #dbdbdb;
+        }
+
+        .search-wrapper {
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 16px 10px 40px;
+            background: #efefef;
+            border: 1px solid #dbdbdb;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #262626;
+        }
+
+        .search-input::placeholder {
+            color: #8e8e8e;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #0095f6;
+            background: white;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #8e8e8e;
+            font-size: 16px;
+        }
+
+        .admin-link {
+            text-align: center;
+            margin-top: 8px;
+        }
+
+        .admin-link a {
+            color: #0095f6;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .data-source {
+            font-size: 10px;
+            color: #8e8e8e;
+            margin-top: 4px;
+        }
+
+        /* Container principal */
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 0;
+        }
+
+        /* Posts estilo Instagram */
+        .items-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .item-card {
+            background: white;
+            border: 1px solid #dbdbdb;
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .item-card.claimed {
+            opacity: 0.7;
+        }
+
+        .item-card.claimed::before {
+            content: "✅ RECLAMADO";
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(0, 149, 246, 0.9);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            z-index: 10;
+        }
+
+        /* Header do post */
+        .post-header {
+            display: flex;
+            align-items: center;
+            padding: 14px 16px;
+            border-bottom: 1px solid #efefef;
+        }
+
+        .post-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+            margin-right: 12px;
+        }
+
+        .post-info h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin: 0;
+            color: #262626;
+        }
+
+        .post-location {
+            font-size: 11px;
+            color: #8e8e8e;
+            margin: 0;
+        }
+
+        /* Imagem do post */
+        .item-image {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            background: #f6f6f6;
+            display: block;
+        }
+
+        .item-image-placeholder {
+            width: 100%;
+            height: 400px;
+            background: #f6f6f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #8e8e8e;
+            font-size: 14px;
+        }
+
+        /* Ações do post */
+        .post-actions {
+            display: flex;
+            align-items: center;
+            padding: 8px 16px;
+            gap: 16px;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            font-size: 20px;
+            color: #262626;
+            transition: transform 0.1s;
+        }
+
+        .action-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .action-btn.liked {
+            color: #ed4956;
+        }
+
+        /* Conteúdo do post */
+        .post-content {
+            padding: 0 16px 16px;
+        }
+
+        .post-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #262626;
+        }
+
+        .post-description {
+            font-size: 14px;
+            color: #262626;
+            line-height: 1.4;
+            margin-bottom: 8px;
+        }
+
+        .post-date {
+            font-size: 10px;
+            color: #8e8e8e;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Modal estilo Instagram */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            border-radius: 12px;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-header {
+            padding: 16px;
+            border-bottom: 1px solid #efefef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #262626;
+        }
+
+        .close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #8e8e8e;
+            padding: 0;
+        }
+
+        .modal-body {
+            padding: 16px;
+        }
+
+        .modal-image {
+            width: 100%;
+            max-height: 300px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .modal-info {
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        .modal-info strong {
+            color: #262626;
+            font-weight: 600;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid #dbdbdb;
+            border-radius: 8px;
+            background: white;
+            color: #262626;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: #0095f6;
+            color: white;
+            border-color: #0095f6;
+        }
+
+        .btn-primary:hover {
+            background: #1877f2;
+        }
+
+        .btn-success {
+            background: #00ba7c;
+            color: white;
+            border-color: #00ba7c;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        /* Estados vazios */
+        .loading {
+            text-align: center;
+            padding: 40px 20px;
+            color: #8e8e8e;
+        }
+
+        .no-items {
+            text-align: center;
+            padding: 60px 20px;
+            color: #8e8e8e;
+        }
+
+        .no-items-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.6;
+        }
+
+        .error {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 12px 16px;
+            margin: 16px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        /* Responsivo para tablets */
+        @media (min-width: 768px) {
+            .container {
+                max-width: 614px;
+            }
+            
+            .item-card {
+                border-radius: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">Achados & Perdidos</div>
+            <div class="subtitle">Instituto da Oportunidade Social</div>
+        </div>
+    </header>
+
+    <div class="search-container">
+        <div class="search-wrapper">
+            <div class="search-icon">🔍</div>
+            <input 
+                type="text" 
+                id="searchInput" 
+                class="search-input" 
+                placeholder="Buscar objetos perdidos..."
+            >
+        </div>
+        <div class="admin-link">
+            <a href="admin.html">🔧 Área Administrativa</a>
+            <div id="dataSource" class="data-source"></div>
+        </div>
+    </div>
+
+    <main class="container">
+        <div id="loading" class="loading">
+            <p>📱 Carregando posts...</p>
+        </div>
+        
+        <div id="error" class="error" style="display: none;">
+            <p><strong>Erro:</strong> Não foi possível carregar os objetos.</p>
+        </div>
+
+        <div id="itemsGrid" class="items-grid" style="display: none;">
+            <!-- Posts aparecerão aqui -->
+        </div>
+
+        <div id="noItems" class="no-items" style="display: none;">
+            <div class="no-items-icon">🔍</div>
+            <h2>Nenhum objeto encontrado</h2>
+            <p>Tente ajustar sua busca ou verifique mais tarde.</p>
+        </div>
+    </main>
+
+    <!-- Modal -->
+    <div id="itemModal" class="modal" role="dialog" aria-labelledby="modalTitle" aria-hidden="true">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle" class="modal-title"></h2>
+                <button class="close" aria-label="Fechar modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <img id="modalImage" class="modal-image" alt="">
+                <div class="modal-info">
+                    <p><strong>Descrição:</strong> <span id="modalDescription"></span></p>
+                    <p><strong>Encontrado em:</strong> <span id="modalDate"></span></p>
+                    <p><strong>Local:</strong> <span id="modalLocation"></span></p>
+                </div>
+                <div class="modal-actions">
+                    <button id="modalClaimBtn" class="btn btn-success">✅ Marcar como Reclamado</button>
+                    <button id="modalUnclaimBtn" class="btn" style="display: none;">↩️ Desmarcar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let items = [];
+        let filteredItems = [];
+        let claimedItems = JSON.parse(localStorage.getItem('claimedItems') || '[]');
+
+        // Carregar dados (prioriza localStorage, depois items.json)
+        async function loadItems() {
+            try {
+                // Tentar carregar do localStorage primeiro (dados da admin)
+                const savedItems = localStorage.getItem('achadosPerdidosItems');
+                const lastUpdate = localStorage.getItem('achadosPerdidosLastUpdate');
+                
+                if (savedItems) {
+                    console.log('📱 Carregando dados atualizados do admin...');
+                    items = JSON.parse(savedItems);
+                } else {
+                    // Fallback para o arquivo items.json
+                    console.log('📁 Carregando dados do arquivo items.json...');
+                    const response = await fetch('items.json');
+                    if (!response.ok) throw new Error('Erro ao carregar');
+                    items = await response.json();
+                }
+                
+                // Ordenar por data (mais recentes primeiro)
+                items.sort((a, b) => new Date(b.found_at) - new Date(a.found_at));
+                
+                filteredItems = [...items];
+                displayItems();
+                
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('itemsGrid').style.display = 'flex';
+                
+                // Mostrar status da fonte de dados
+                const dataSourceEl = document.getElementById('dataSource');
+                if (savedItems && lastUpdate) {
+                    const updateDate = new Date(lastUpdate).toLocaleString('pt-BR');
+                    dataSourceEl.innerHTML = `🔄 Atualizado: ${updateDate.split(' ')[0]}`;
+                    console.log(`🔄 Última atualização pelo admin: ${updateDate}`);
+                } else {
+                    dataSourceEl.innerHTML = `📁 Dados originais`;
+                }
+                
+            } catch (error) {
+                console.error('Erro:', error);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').style.display = 'block';
+            }
+        }
+
+        // Exibir items estilo Instagram
+        function displayItems() {
+            const grid = document.getElementById('itemsGrid');
+            const noItems = document.getElementById('noItems');
+            
+            if (filteredItems.length === 0) {
+                grid.style.display = 'none';
+                noItems.style.display = 'block';
+                return;
+            }
+            
+            grid.style.display = 'flex';
+            noItems.style.display = 'none';
+            
+            grid.innerHTML = filteredItems.map(item => renderItem(item)).join('');
+
+            // Event listeners para ações
+            grid.querySelectorAll('.action-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const itemId = parseInt(btn.closest('.item-card').dataset.itemId);
+                    const action = btn.dataset.action;
+                    
+                    if (action === 'details') {
+                        openModal(itemId);
+                    } else if (action === 'like') {
+                        // Toggle like (apenas visual)
+                        btn.classList.toggle('liked');
+                        btn.innerHTML = btn.classList.contains('liked') ? '❤️' : '🤍';
+                    }
+                });
+            });
+        }
+
+        function renderItem(item) {
+            const isClaimed = claimedItems.includes(item.id);
+            const formattedDate = formatRelativeTime(item.found_at);
+            
+            return `
+                <article class="item-card ${isClaimed ? 'claimed' : ''}" data-item-id="${item.id}">
+                    <!-- Header do post -->
+                    <div class="post-header">
+                        <div class="post-avatar">📋</div>
+                        <div class="post-info">
+                            <h3>achados_perdidos_ios</h3>
+                            <p class="post-location">${escapeHtml(item.location || 'Local não informado')}</p>
+                        </div>
+                    </div>
+
+                    <!-- Imagem -->
+                    ${renderItemImage(item)}
+
+                    <!-- Ações -->
+                    <div class="post-actions">
+                        <button class="action-btn" data-action="like">🤍</button>
+                        <button class="action-btn" data-action="details">💬</button>
+                        <button class="action-btn" data-action="details">📤</button>
+                    </div>
+
+                    <!-- Conteúdo -->
+                    <div class="post-content">
+                        <div class="post-title">
+                            <strong>achados_perdidos_ios</strong> ${escapeHtml(item.title)}
+                        </div>
+                        <div class="post-description">${escapeHtml(item.description)}</div>
+                        <div class="post-date">${formattedDate}</div>
+                    </div>
+                </article>
+            `;
+        }
+
+        function renderItemImage(item) {
+            return `
+                <img 
+                    src="${item.image}" 
+                    alt="${escapeHtml(item.title)}"
+                    class="item-image"
+                    onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                />
+                <div class="item-image-placeholder" style="display: none;">
+                    📷 Imagem não disponível
+                </div>
+            `;
+        }
+
+        // Busca
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const query = e.target.value.toLowerCase();
+            filteredItems = items.filter(item =>
+                item.title.toLowerCase().includes(query) ||
+                item.description.toLowerCase().includes(query) ||
+                (item.location && item.location.toLowerCase().includes(query))
+            );
+            displayItems();
+        });
+
+        // Modal
+        function openModal(itemId) {
+            const item = items.find(i => i.id === itemId);
+            if (!item) return;
+
+            const modal = document.getElementById('itemModal');
+            const isClaimed = claimedItems.includes(itemId);
+
+            document.getElementById('modalTitle').textContent = item.title;
+            document.getElementById('modalDescription').textContent = item.description;
+            document.getElementById('modalDate').textContent = new Date(item.found_at).toLocaleDateString('pt-BR');
+            document.getElementById('modalLocation').textContent = item.location || 'Não informado';
+
+            const modalImage = document.getElementById('modalImage');
+            modalImage.src = item.image;
+            modalImage.alt = item.title;
+
+            const claimBtn = document.getElementById('modalClaimBtn');
+            const unclaimBtn = document.getElementById('modalUnclaimBtn');
+
+            if (isClaimed) {
+                claimBtn.style.display = 'none';
+                unclaimBtn.style.display = 'inline-block';
+            } else {
+                claimBtn.style.display = 'inline-block';
+                unclaimBtn.style.display = 'none';
+            }
+
+            modal.dataset.itemId = itemId;
+            modal.style.display = 'block';
+            modal.setAttribute('aria-hidden', 'false');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('itemModal');
+            modal.style.display = 'none';
+            modal.setAttribute('aria-hidden', 'true');
+        }
+
+        function claimItem(itemId) {
+            if (!claimedItems.includes(itemId)) {
+                claimedItems.push(itemId);
+                localStorage.setItem('claimedItems', JSON.stringify(claimedItems));
+                displayItems();
+                closeModal();
+            }
+        }
+
+        function unclaimItem(itemId) {
+            claimedItems = claimedItems.filter(id => id !== itemId);
+            localStorage.setItem('claimedItems', JSON.stringify(claimedItems));
+            displayItems();
+            closeModal();
+        }
+
+        // Event listeners
+        document.querySelector('.close').addEventListener('click', closeModal);
+        
+        document.getElementById('itemModal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeModal();
+        });
+
+        document.getElementById('modalClaimBtn').addEventListener('click', function() {
+            const itemId = parseInt(document.getElementById('itemModal').dataset.itemId);
+            claimItem(itemId);
+        });
+
+        document.getElementById('modalUnclaimBtn').addEventListener('click', function() {
+            const itemId = parseInt(document.getElementById('itemModal').dataset.itemId);
+            unclaimItem(itemId);
+        });
+
+        // Utility functions
+        function formatRelativeTime(dateString) {
+            const now = new Date();
+            const date = new Date(dateString);
+            const diffTime = Math.abs(now - date);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (diffDays === 1) return 'ONTEM';
+            if (diffDays < 7) return `${diffDays} DIAS ATRÁS`;
+            if (diffDays < 30) return `${Math.floor(diffDays / 7)} SEMANAS ATRÁS`;
+            return date.toLocaleDateString('pt-BR');
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Inicializar
+        loadItems();
+    </script>
+</body>
+</html>

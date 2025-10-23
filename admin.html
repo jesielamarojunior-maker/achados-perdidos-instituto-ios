@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Achados e Perdidos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        .header {
+            background: white;
+            border-bottom: 1px solid #dbdbdb;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 12px 16px;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, #8B5A96 0%, #FF8C42 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-align: center;
+            margin-bottom: 4px;
+        }
+        
+        .header p {
+            font-size: 0.7rem;
+            color: #8e8e8e;
+            text-align: center;
+            margin: 0;
+        }
+
+        .nav-links {
+            text-align: center;
+            padding: 12px 16px;
+            background: white;
+            border-bottom: 1px solid #dbdbdb;
+        }
+
+        .nav-links a {
+            color: #8B5A96;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .container {
+            padding: 1rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .form-section {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .form-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #2c3e50;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #eee;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #e74c3c;
+        }
+
+        .form-textarea {
+            height: 100px;
+            resize: vertical;
+        }
+
+        .btn {
+            background: #8B5A96;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: background 0.2s ease;
+            width: 100%;
+            margin-top: 0.5rem;
+        }
+
+        .btn:hover {
+            background: #7A4A85;
+        }
+
+        .btn-orange {
+            background: #FF8C42;
+        }
+
+        .btn-orange:hover {
+            background: #E67A35;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            width: auto;
+            margin: 0;
+        }
+
+        .items-list {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .item-admin {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            gap: 1rem;
+        }
+
+        .item-image-small {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 6px;
+            background: #eee;
+            flex-shrink: 0;
+        }
+
+        .item-info {
+            flex: 1;
+        }
+
+        .item-title-small {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .item-date-small {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .file-preview {
+            margin-top: 0.5rem;
+        }
+
+        .preview-image {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+            .item-admin {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+
+            .item-image-small {
+                width: 100%;
+                height: 120px;
+            }
+
+            .header h1 {
+                font-size: 1.4rem;
+            }
+
+            .container {
+                padding: 0.5rem;
+            }
+
+            .form-section, .items-list {
+                margin: 0 0 1rem 0;
+                border-radius: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>🔧 Administração</h1>
+        <p>Achados e Perdidos - IOS</p>
+    </header>
+
+    <div class="nav-links">
+        <a href="index.html">← Voltar ao Site</a>
+        <span style="margin: 0 1rem;">|</span>
+        <a href="#" onclick="logout()" style="color: #e74c3c;">🚪 Sair</a>
+    </div>
+
+    <div class="container">
+        <!-- Tela de Login Admin -->
+        <div id="loginScreen" class="form-section" style="text-align: center; max-width: 400px; margin: 2rem auto;">
+            <h2 class="form-title">🔐 Acesso Restrito</h2>
+            <p style="color: #666; margin-bottom: 1.5rem;">Digite a senha de administrador para continuar:</p>
+            <div class="form-group">
+                <input type="password" id="adminPassword" class="form-input" placeholder="Senha do administrador" style="text-align: center;">
+            </div>
+            <button onclick="checkPassword()" class="btn">Entrar</button>
+            <p style="font-size: 0.8rem; color: #666; margin-top: 1rem; text-align: center;">
+                � <strong>Acesso restrito:</strong> Apenas funcionários autorizados do IOS
+            </p>
+        </div>
+
+        <!-- Conteúdo Admin (inicialmente oculto) -->
+        <div id="adminContent" style="display: none;">
+            <!-- Alerts -->
+            <div id="alertSuccess" class="alert alert-success" style="display: none;"></div>
+            <div id="alertError" class="alert alert-error" style="display: none;"></div>
+
+        <!-- Form para adicionar item -->
+        <div class="form-section">
+            <h2 class="form-title">📝 Adicionar Novo Item</h2>
+            <form id="addItemForm">
+                <div class="form-group">
+                    <label class="form-label" for="title">Título do Objeto</label>
+                    <input type="text" id="title" class="form-input" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="description">Descrição</label>
+                    <textarea id="description" class="form-input form-textarea" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="location">Local Encontrado</label>
+                    <input type="text" id="location" class="form-input" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="foundDate">Data Encontrado</label>
+                    <input type="date" id="foundDate" class="form-input" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="imageFile">Foto do Objeto</label>
+                    <input type="file" id="imageFile" class="form-input" accept="image/*" required>
+                    <div id="imagePreview" class="file-preview"></div>
+                </div>
+
+                <button type="submit" class="btn">Adicionar Item</button>
+            </form>
+        </div>
+
+        <!-- Lista de items existentes -->
+        <div class="items-list">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h2 class="form-title" style="margin: 0;">📋 Gerenciar Items Existentes</h2>
+                <button onclick="resetToOriginal()" class="btn btn-small" style="background: #6c757d;">
+                    🔄 Resetar para Original
+                </button>
+            </div>
+            
+            <div id="loading" class="loading">
+                <p>Carregando items...</p>
+            </div>
+
+            <div id="itemsList">
+                <!-- Items aparecerão aqui -->
+            </div>
+        </div>
+
+        <!-- Lista de items reclamados -->
+        <div class="items-list">
+            <h2 class="form-title">🎯 Items Reclamados (Aguardando Retirada)</h2>
+            
+            <div id="claimedItemsList">
+                <!-- Items reclamados aparecerão aqui -->
+            </div>
+        </div>
+        </div> <!-- Fim do adminContent -->
+    </div>
+
+    <script>
+        let items = [];
+        let nextId = 1;
+        let claimedItems = [];
+        let claimedData = {};
+
+        // Verificar se já está logado
+        const isLoggedIn = localStorage.getItem('adminLoggedIn') === 'true';
+
+        // Sistema de autenticação simples
+        function checkPassword() {
+            const password = document.getElementById('adminPassword').value;
+            const correctPassword = '973439010'; // Senha Instituto da Oportunidade Social
+            
+            if (password === correctPassword) {
+                localStorage.setItem('adminLoggedIn', 'true');
+                showAdminContent();
+                loadItems();
+            } else {
+                showAlert('❌ Senha incorreta! Acesso negado.', 'error');
+                document.getElementById('adminPassword').value = '';
+            }
+        }
+
+        function showAdminContent() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('adminContent').style.display = 'block';
+        }
+
+        function logout() {
+            localStorage.removeItem('adminLoggedIn');
+            document.getElementById('loginScreen').style.display = 'block';
+            document.getElementById('adminContent').style.display = 'none';
+            document.getElementById('adminPassword').value = '';
+        }
+
+        // Verificar login na inicialização
+        if (isLoggedIn) {
+            showAdminContent();
+        }
+
+        // Enter para fazer login
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('adminPassword').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    checkPassword();
+                }
+            });
+        });
+
+        // Carregar items existentes (prioriza localStorage)
+        async function loadItems() {
+            try {
+                // Tentar carregar dados salvos no localStorage primeiro
+                const savedItems = localStorage.getItem('achadosPerdidosItems');
+                
+                if (savedItems) {
+                    console.log('📱 Carregando dados salvos localmente...');
+                    items = JSON.parse(savedItems);
+                } else {
+                    // Fallback para o arquivo original
+                    console.log('📁 Carregando dados do arquivo items.json...');
+                    const response = await fetch('items.json');
+                    if (response.ok) {
+                        items = await response.json();
+                        // Salvar no localStorage para futuras edições
+                        localStorage.setItem('achadosPerdidosItems', JSON.stringify(items, null, 2));
+                        localStorage.setItem('achadosPerdidosLastUpdate', new Date().toISOString());
+                    }
+                }
+                
+                nextId = items.length > 0 ? Math.max(...items.map(item => item.id)) + 1 : 1;
+                
+                // Carregar dados de reclamações
+                claimedItems = JSON.parse(localStorage.getItem('claimedItems') || '[]');
+                claimedData = JSON.parse(localStorage.getItem('claimedData') || '{}');
+                
+                displayItems();
+                displayClaimedItems();
+                document.getElementById('loading').style.display = 'none';
+            } catch (error) {
+                console.error('Erro ao carregar items:', error);
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        // Exibir items na lista de administração (apenas não reclamados)
+        function displayItems() {
+            const container = document.getElementById('itemsList');
+            const availableItems = items.filter(item => !claimedItems.includes(item.id));
+            
+            if (availableItems.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #666;">Nenhum item disponível no feed.</p>';
+                return;
+            }
+
+            container.innerHTML = availableItems.map(item => `
+                <div class="item-admin" data-id="${item.id}">
+                    <img src="${item.image}" alt="${item.title}" class="item-image-small" 
+                         onerror="this.style.display='none';">
+                    <div class="item-info">
+                        <div class="item-title-small">${item.title}</div>
+                        <div class="item-date-small">📅 ${new Date(item.found_at).toLocaleDateString('pt-BR')} • 📍 ${item.location}</div>
+                        <div style="margin-top: 0.5rem;">
+                            <button class="btn btn-danger btn-small" onclick="deleteItem(${item.id})">
+                                🗑️ Excluir
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Exibir items reclamados
+        function displayClaimedItems() {
+            const container = document.getElementById('claimedItemsList');
+            const claimed = items.filter(item => claimedItems.includes(item.id));
+            
+            if (claimed.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #666;">Nenhum item reclamado aguardando retirada.</p>';
+                return;
+            }
+
+            container.innerHTML = claimed.map(item => {
+                const claimInfo = claimedData[item.id] || {};
+                const claimDate = claimInfo.claimDate ? new Date(claimInfo.claimDate).toLocaleDateString('pt-BR') : 'N/A';
+                
+                return `
+                    <div class="item-admin" data-id="${item.id}" style="background: #FFF8E1; border: 2px solid #FF8C42;">
+                        <img src="${item.image}" alt="${item.title}" class="item-image-small" 
+                             onerror="this.style.display='none';">
+                        <div class="item-info">
+                            <div class="item-title-small">${item.title}</div>
+                            <div class="item-date-small">
+                                👤 <strong>Reclamante:</strong> ${claimInfo.claimerName || 'N/A'}<br>
+                                🎯 <strong>Reclamado em:</strong> ${claimDate}<br>
+                                📍 <strong>Local:</strong> ${item.location}
+                            </div>
+                            <div style="margin-top: 0.75rem; display: flex; gap: 0.5rem;">
+                                <button class="btn btn-orange btn-small" onclick="restoreItem(${item.id})" style="width: auto; flex: 1;">
+                                    ↩️ Devolver ao Feed
+                                </button>
+                                <button class="btn btn-danger btn-small" onclick="confirmDelivery(${item.id})" style="width: auto; flex: 1;">
+                                    ✅ Entregue
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Preview da imagem selecionada
+        document.getElementById('imageFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const preview = document.getElementById('imagePreview');
+            
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.innerHTML = `<img src="${e.target.result}" class="preview-image" alt="Preview">`;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.innerHTML = '';
+            }
+        });
+
+        // Adicionar novo item
+        document.getElementById('addItemForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const title = document.getElementById('title').value;
+            const description = document.getElementById('description').value;
+            const location = document.getElementById('location').value;
+            const foundDate = document.getElementById('foundDate').value;
+            const imageFile = document.getElementById('imageFile').files[0];
+
+            if (!imageFile) {
+                showAlert('Por favor, selecione uma imagem.', 'error');
+                return;
+            }
+
+            // Simular upload da imagem (em um projeto real, você faria upload para servidor)
+            const imageName = `${title.toLowerCase().replace(/[^a-z0-9]/g, '-')}-${String(nextId).padStart(3, '0')}.jpg`;
+            const imagePath = `images/${imageName}`;
+
+            // Criar novo item
+            const newItem = {
+                id: nextId++,
+                title: title,
+                description: description,
+                location: location,
+                found_at: foundDate,
+                image: imagePath
+            };
+
+            // Adicionar à lista
+            items.push(newItem);
+            
+            // Simular salvamento no servidor
+            saveItemsToServer();
+            
+            // Limpar formulário
+            document.getElementById('addItemForm').reset();
+            document.getElementById('imagePreview').innerHTML = '';
+            
+            // Atualizar lista
+            displayItems();
+            
+            showAlert(`Item "${title}" adicionado com sucesso! 
+                      📷 Salve a imagem como: ${imageName} na pasta images/
+                      💾 Baixe o arquivo items.json atualizado abaixo.`, 'success');
+        });
+
+        // Excluir item
+        function deleteItem(itemId) {
+            if (confirm('Tem certeza que deseja excluir este item permanentemente?')) {
+                items = items.filter(item => item.id !== itemId);
+                
+                // Remover também das listas de reclamados
+                claimedItems = claimedItems.filter(id => id !== itemId);
+                delete claimedData[itemId];
+                
+                // Salvar todas as alterações
+                localStorage.setItem('lostItems', JSON.stringify(items));
+                localStorage.setItem('claimedItems', JSON.stringify(claimedItems));
+                localStorage.setItem('claimedData', JSON.stringify(claimedData));
+                
+                displayItems();
+                displayClaimedItems();
+                saveItemsToServer();
+                showAlert('Item excluído permanentemente!', 'success');
+            }
+        }
+
+        // Restaurar item ao feed
+        function restoreItem(id) {
+            if (confirm('Devolver este item ao feed público?')) {
+                claimedItems = claimedItems.filter(itemId => itemId !== id);
+                delete claimedData[id];
+                
+                localStorage.setItem('claimedItems', JSON.stringify(claimedItems));
+                localStorage.setItem('claimedData', JSON.stringify(claimedData));
+                
+                displayItems();
+                displayClaimedItems();
+                showAlert('Item devolvido ao feed!', 'success');
+            }
+        }
+
+        // Confirmar entrega do item
+        function confirmDelivery(id) {
+            if (confirm('Confirmar que o item foi entregue ao reclamante?')) {
+                // Remover completamente o item do sistema
+                items = items.filter(item => item.id !== id);
+                claimedItems = claimedItems.filter(itemId => itemId !== id);
+                delete claimedData[id];
+                
+                // Salvar todas as alterações
+                localStorage.setItem('lostItems', JSON.stringify(items));
+                localStorage.setItem('claimedItems', JSON.stringify(claimedItems));
+                localStorage.setItem('claimedData', JSON.stringify(claimedData));
+                
+                displayItems();
+                displayClaimedItems();
+                saveItemsToServer();
+                showAlert('Item marcado como entregue e removido do sistema!', 'success');
+            }
+        }
+
+        // Salvar dados automaticamente (localStorage como banco de dados temporário)
+        function saveItemsToServer() {
+            const jsonData = JSON.stringify(items, null, 2);
+            
+            // Salvar no localStorage para sincronização automática
+            localStorage.setItem('achadosPerdidosItems', jsonData);
+            localStorage.setItem('achadosPerdidosLastUpdate', new Date().toISOString());
+            
+            // Mostrar confirmação
+            const downloadInfo = document.createElement('div');
+            downloadInfo.innerHTML = `
+                <div style="margin-top: 1rem; padding: 1rem; background: #d4edda; border-radius: 6px; border: 1px solid #28a745;">
+                    <strong>✅ Salvo Automaticamente!</strong><br>
+                    <p style="font-size: 0.9rem; margin: 0.5rem 0 0 0; color: #155724;">
+                        As mudanças já apareceram na página principal automaticamente.
+                        <br><small>🔄 Atualize a página principal se não ver as mudanças.</small>
+                    </p>
+                    <button onclick="downloadJSON()" class="btn btn-small" style="background: #2196f3; margin-top: 0.5rem;">
+                        📥 Download Backup (Opcional)
+                    </button>
+                </div>
+            `;
+            
+            const container = document.querySelector('.form-section');
+            const existingDownload = container.querySelector('[data-download]');
+            if (existingDownload) {
+                existingDownload.remove();
+            }
+            
+            downloadInfo.setAttribute('data-download', 'true');
+            container.appendChild(downloadInfo);
+            
+            // Auto-remover mensagem após 8 segundos
+            setTimeout(() => {
+                if (downloadInfo.parentNode) {
+                    downloadInfo.remove();
+                }
+            }, 8000);
+        }
+
+        // Função para download do JSON (backup)
+        function downloadJSON() {
+            const jsonData = localStorage.getItem('achadosPerdidosItems') || JSON.stringify(items, null, 2);
+            const blob = new Blob([jsonData], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `items-backup-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showAlert('📥 Backup baixado com sucesso!', 'success');
+        }
+
+        // Mostrar alertas
+        function showAlert(message, type) {
+            const alertId = type === 'success' ? 'alertSuccess' : 'alertError';
+            const alertEl = document.getElementById(alertId);
+            
+            alertEl.textContent = message;
+            alertEl.style.display = 'block';
+            
+            // Esconder outros alertas
+            const otherId = type === 'success' ? 'alertError' : 'alertSuccess';
+            document.getElementById(otherId).style.display = 'none';
+            
+            // Auto-hide após 5 segundos
+            setTimeout(() => {
+                alertEl.style.display = 'none';
+            }, 5000);
+        }
+
+        // Função de notificação alternativa (compatível com index.html)
+        function showNotification(message, type) {
+            showAlert(message, type);
+        }
+
+        // Resetar para dados originais
+        async function resetToOriginal() {
+            if (confirm('Tem certeza que deseja resetar todos os dados para o arquivo original? Todas as mudanças feitas pelo admin serão perdidas.')) {
+                try {
+                    // Limpar localStorage
+                    localStorage.removeItem('achadosPerdidosItems');
+                    localStorage.removeItem('achadosPerdidosLastUpdate');
+                    
+                    // Recarregar dados originais
+                    const response = await fetch('items.json');
+                    if (response.ok) {
+                        items = await response.json();
+                        nextId = items.length > 0 ? Math.max(...items.map(item => item.id)) + 1 : 1;
+                        displayItems();
+                        showAlert('🔄 Dados resetados para o arquivo original!', 'success');
+                    }
+                } catch (error) {
+                    showAlert('Erro ao resetar dados: ' + error.message, 'error');
+                }
+            }
+        }
+
+        // Definir data de hoje como padrão
+        document.getElementById('foundDate').valueAsDate = new Date();
+
+        // Inicializar (só carrega dados se estiver logado)
+        if (isLoggedIn) {
+            loadItems();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "title": "Carteira marrom de couro",
+    "description": "Carteira masculina de couro marrom encontrada no pátio principal. Contém documentos e cartões.",
+    "image": "images/carteira-marrom-001.jpg",
+    "found_at": "2024-10-20",
+    "location": "Pátio principal"
+  },
+  {
+    "id": 2,
+    "title": "Óculos de sol Ray-Ban",
+    "description": "Óculos de sol preto da marca Ray-Ban, modelo aviador. Encontrado na biblioteca.",
+    "image": "images/oculos-rayban-002.jpg",
+    "found_at": "2024-10-18",
+    "location": "Biblioteca"
+  },
+  {
+    "id": 3,
+    "title": "Chaves com chaveiro do Batman",
+    "description": "Molho de chaves com chaveiro do Batman. Aproximadamente 5 chaves de diferentes tamanhos.",
+    "image": "images/chaves-batman-003.jpg",
+    "found_at": "2024-10-15",
+    "location": "Sala de aula 204"
+  }
+]
