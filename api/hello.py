@@ -4,7 +4,7 @@ from mangum import Mangum
 app = FastAPI()
 
 @app.get("/")
-def read_root():
-    return {"message": "Hello from Vercel API", "status": "working"}
+def hello():
+    return {"message": "Olá do back-end!"}
 
 handler = Mangum(app)

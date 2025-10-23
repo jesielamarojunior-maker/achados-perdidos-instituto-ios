@@ -1,24 +1,14 @@
 {
-  "name": "achados-perdidos-ios",
+  "name": "achados-perdidos-instituto-ios",
   "version": "1.0.0",
-  "description": "Sistema de Achados e Perdidos - Instituto da Oportunidade Social",
-  "main": "index.html",
   "scripts": {
-    "build": "echo 'Build completed'",
-    "dev": "python backend/main.py",
-    "start": "python backend/main.py"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/SEU_USUARIO/achados-perdidos-ios.git"
-  },
-  "keywords": [
-    "achados",
-    "perdidos",
-    "ios",
-    "fastapi",
-    "vercel"
-  ],
-  "author": "Instituto da Oportunidade Social",
-  "license": "MIT"
+  "dependencies": {
+    "next": "13.5.1",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  }
 }
