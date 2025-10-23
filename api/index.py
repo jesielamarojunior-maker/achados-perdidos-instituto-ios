@@ -44,84 +44,55 @@ class Claim(BaseModel):
 class LoginRequest(BaseModel):
     password: str
 
-# Arquivo de dados
-DATA_FILE = "database.json"
+# Dados em memória (Vercel Serverless não persiste arquivos)
+DEFAULT_DATA = {
+    "items": [
+        {
+            "id": 1,
+            "title": "Carteira de couro marrom",
+            "description": "Carteira encontrada no pátio da escola. Contém documentos.",
+            "image": "images/carteira-marrom-001.jpg",
+            "found_at": "2024-10-20",
+            "location": "Pátio principal",
+            "created_at": "2024-10-20T10:30:00"
+        },
+        {
+            "id": 2,
+            "title": "Óculos de sol Ray-Ban",
+            "description": "Óculos escuros encontrados na quadra esportiva.",
+            "image": "images/oculos-rayban-002.jpg",
+            "found_at": "2024-10-21",
+            "location": "Quadra de esportes",
+            "created_at": "2024-10-21T14:15:00"
+        },
+        {
+            "id": 3,
+            "title": "Chaveiro do Batman",
+            "description": "Chaveiro com 3 chaves encontrado no corredor.",
+            "image": "images/chaves-batman-003.jpg",
+            "found_at": "2024-10-22",
+            "location": "Corredor do 2º andar",
+            "created_at": "2024-10-22T09:45:00"
+        }
+    ],
+    "comments": {},
+    "claimed_items": [],
+    "claimed_data": {},
+    "next_id": 4
+}
 
-def load_data():
-    """Carrega dados do arquivo JSON"""
-    if not os.path.exists(DATA_FILE):
-        return {
-            "items": [],
-            "comments": {},
-            "claimed_items": [],
-            "claimed_data": {},
-            "next_id": 1
-        }
-    
-    try:
-        with open(DATA_FILE, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except Exception:
-        return {
-            "items": [],
-            "comments": {},
-            "claimed_items": [],
-            "claimed_data": {},
-            "next_id": 1
-        }
+# Variável global para armazenar dados (em memória)
+_data_store = DEFAULT_DATA.copy()
+
+def get_data():
+    """Retorna dados atuais"""
+    return _data_store
 
 def save_data(data):
-    """Salva dados no arquivo JSON"""
-    try:
-        with open(DATA_FILE, 'w', encoding='utf-8') as f:
-            json.dump(data, f, ensure_ascii=False, indent=2)
-        return True
-    except Exception as e:
-        print(f"Erro ao salvar dados: {e}")
-        return False
-
-# Inicializar com dados padrão se arquivo não existir
-def init_default_data():
-    if not os.path.exists(DATA_FILE):
-        default_data = {
-            "items": [
-                {
-                    "id": 1,
-                    "title": "Carteira de couro marrom",
-                    "description": "Carteira encontrada no pátio da escola. Contém documentos.",
-                    "image": "images/carteira-marrom-001.jpg",
-                    "found_at": "2024-10-20",
-                    "location": "Pátio principal",
-                    "created_at": "2024-10-20T10:30:00"
-                },
-                {
-                    "id": 2,
-                    "title": "Óculos de sol Ray-Ban",
-                    "description": "Óculos escuros encontrados na quadra esportiva.",
-                    "image": "images/oculos-rayban-002.jpg",
-                    "found_at": "2024-10-21",
-                    "location": "Quadra de esportes",
-                    "created_at": "2024-10-21T14:15:00"
-                },
-                {
-                    "id": 3,
-                    "title": "Chaveiro do Batman",
-                    "description": "Chaveiro com 3 chaves encontrado no corredor.",
-                    "image": "images/chaves-batman-003.jpg",
-                    "found_at": "2024-10-22",
-                    "location": "Corredor do 2º andar",
-                    "created_at": "2024-10-22T09:45:00"
-                }
-            ],
-            "comments": {},
-            "claimed_items": [],
-            "claimed_data": {},
-            "next_id": 4
-        }
-        save_data(default_data)
-
-# Inicializar dados padrão
-init_default_data()
+    """Salva dados na memória"""
+    global _data_store
+    _data_store = data
+    return True
 
 # ========== ENDPOINTS DOS ITEMS ==========
 
@@ -132,7 +103,7 @@ async def root():
 @app.get("/api/items", response_model=List[Item])
 async def get_items():
     """Buscar todos os items não reclamados"""
-    data = load_data()
+    data = get_data()
     available_items = []
     
     for item in data["items"]:
@@ -144,7 +115,7 @@ async def get_items():
 @app.post("/api/items", response_model=Item)
 async def create_item(item: Item):
     """Criar novo item"""
-    data = load_data()
+    data = get_data()
     
     # Gerar ID único
     item.id = data["next_id"]
@@ -156,15 +127,13 @@ async def create_item(item: Item):
     # Adicionar à lista
     data["items"].append(item.dict())
     
-    if save_data(data):
-        return item
-    else:
-        raise HTTPException(status_code=500, detail="Erro ao salvar item")
+    save_data(data)
+    return item
 
 @app.delete("/api/items/{item_id}")
 async def delete_item(item_id: int):
     """Deletar item"""
-    data = load_data()
+    data = get_data()
     
     # Remover item da lista principal
     data["items"] = [item for item in data["items"] if item["id"] != item_id]
@@ -180,23 +149,21 @@ async def delete_item(item_id: int):
     if str(item_id) in data["comments"]:
         del data["comments"][str(item_id)]
     
-    if save_data(data):
-        return {"message": "Item deletado com sucesso"}
-    else:
-        raise HTTPException(status_code=500, detail="Erro ao deletar item")
+    save_data(data)
+    return {"message": "Item deletado com sucesso"}
 
 # ========== ENDPOINTS DOS COMENTÁRIOS ==========
 
 @app.get("/api/items/{item_id}/comments")
 async def get_comments(item_id: int):
     """Buscar comentários de um item"""
-    data = load_data()
+    data = get_data()
     return data["comments"].get(str(item_id), [])
 
 @app.post("/api/items/{item_id}/comments")
 async def add_comment(item_id: int, comment: Comment):
     """Adicionar comentário a um item"""
-    data = load_data()
+    data = get_data()
     
     # Verificar se item existe
     item_exists = any(item["id"] == item_id for item in data["items"])
@@ -214,17 +181,15 @@ async def add_comment(item_id: int, comment: Comment):
     
     data["comments"][str(item_id)].append(comment.dict())
     
-    if save_data(data):
-        return comment
-    else:
-        raise HTTPException(status_code=500, detail="Erro ao salvar comentário")
+    save_data(data)
+    return comment
 
 # ========== ENDPOINTS DOS CLAIMS ==========
 
 @app.post("/api/items/{item_id}/claim")
 async def claim_item(item_id: int, claim: Claim):
     """Reclamar um item"""
-    data = load_data()
+    data = get_data()
     
     # Verificar se item existe e não foi reclamado
     item_exists = any(item["id"] == item_id for item in data["items"])
@@ -241,15 +206,13 @@ async def claim_item(item_id: int, claim: Claim):
     data["claimed_items"].append(item_id)
     data["claimed_data"][str(item_id)] = claim.dict()
     
-    if save_data(data):
-        return {"message": "Item reclamado com sucesso", "claim": claim}
-    else:
-        raise HTTPException(status_code=500, detail="Erro ao reclamar item")
+    save_data(data)
+    return {"message": "Item reclamado com sucesso", "claim": claim}
 
 @app.get("/api/claimed-items")
 async def get_claimed_items():
     """Buscar items reclamados (admin)"""
-    data = load_data()
+    data = get_data()
     claimed_items = []
     
     for item in data["items"]:
@@ -265,7 +228,7 @@ async def get_claimed_items():
 @app.post("/api/items/{item_id}/restore")
 async def restore_item(item_id: int):
     """Devolver item ao feed"""
-    data = load_data()
+    data = get_data()
     
     if item_id in data["claimed_items"]:
         data["claimed_items"].remove(item_id)
@@ -273,15 +236,13 @@ async def restore_item(item_id: int):
     if str(item_id) in data["claimed_data"]:
         del data["claimed_data"][str(item_id)]
     
-    if save_data(data):
-        return {"message": "Item devolvido ao feed"}
-    else:
-        raise HTTPException(status_code=500, detail="Erro ao restaurar item")
+    save_data(data)
+    return {"message": "Item devolvido ao feed"}
 
 @app.post("/api/items/{item_id}/deliver")
 async def confirm_delivery(item_id: int):
     """Confirmar entrega do item (remove definitivamente)"""
-    data = load_data()
+    data = get_data()
     
     # Remover completamente
     data["items"] = [item for item in data["items"] if item["id"] != item_id]
@@ -295,10 +256,8 @@ async def confirm_delivery(item_id: int):
     if str(item_id) in data["comments"]:
         del data["comments"][str(item_id)]
     
-    if save_data(data):
-        return {"message": "Item marcado como entregue"}
-    else:
-        raise HTTPException(status_code=500, detail="Erro ao confirmar entrega")
+    save_data(data)
+    return {"message": "Item marcado como entregue"}
 
 # ========== ENDPOINT DE AUTENTICAÇÃO ==========
 
@@ -318,11 +277,6 @@ async def login(login_request: LoginRequest):
 @app.post("/api/reset")
 async def reset_data():
     """Resetar dados para padrão original"""
-    if os.path.exists(DATA_FILE):
-        os.remove(DATA_FILE)
-    
-    init_default_data()
+    global _data_store
+    _data_store = DEFAULT_DATA.copy()
     return {"message": "Dados resetados para padrão original"}
-
-# Para Vercel, não precisa do if __name__ == "__main__"
-# O Vercel vai usar diretamente a instância 'app'

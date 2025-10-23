@@ -599,43 +599,63 @@
         let comments = {};
         let claimedData = {};
 
-        // Carregar dados da API
+        // Carregar dados (modo estático funcional)
         async function loadItems() {
             try {
-                console.log('🔄 Carregando dados da API...');
+                console.log('� Sistema Achados & Perdidos IOS - Carregando...');
                 
-                // Tentar conectar com API primeiro
-                const apiOnline = await achadosAPI.checkHealth();
+                // Primeiro: verificar se há dados do admin (localStorage)
+                const savedItems = localStorage.getItem('lostItems');
+                claimedItems = JSON.parse(localStorage.getItem('claimedItems') || '[]');
+                comments = JSON.parse(localStorage.getItem('itemComments') || '{}');
+                claimedData = JSON.parse(localStorage.getItem('claimedData') || '{}');
                 
-                if (apiOnline) {
-                    console.log('✅ API online - carregando dados atualizados');
-                    items = await achadosAPI.getItems();
-                    
-                    // Carregar comentários para cada item
-                    for (const item of items) {
-                        const itemComments = await achadosAPI.getComments(item.id);
-                        if (itemComments.length > 0) {
-                            comments[item.id] = itemComments;
-                        }
-                    }
+                if (savedItems) {
+                    console.log('✅ Carregando dados atualizados do admin...');
+                    const allItems = JSON.parse(savedItems);
+                    // Filtrar apenas items não reclamados
+                    items = allItems.filter(item => !claimedItems.includes(item.id));
                 } else {
-                    console.log('⚠️ API offline - usando fallback localStorage');
-                    // Fallback para localStorage se API estiver offline
-                    const savedItems = localStorage.getItem('achadosPerdidosItems');
-                    if (savedItems) {
-                        items = JSON.parse(savedItems);
-                        claimedItems = JSON.parse(localStorage.getItem('claimedItems') || '[]');
-                        comments = JSON.parse(localStorage.getItem('itemComments') || '{}');
-                        claimedData = JSON.parse(localStorage.getItem('claimedData') || '{}');
-                        
-                        // Filtrar items não reclamados
-                        items = items.filter(item => !claimedItems.includes(item.id));
-                    } else {
-                        // Último fallback: arquivo JSON
-                        console.log('📁 Carregando dados do arquivo items.json...');
+                    // Fallback: carregar dados originais do items.json
+                    console.log('📁 Carregando dados originais...');
+                    try {
                         const response = await fetch('items.json');
-                        if (!response.ok) throw new Error('Erro ao carregar');
-                        items = await response.json();
+                        if (response.ok) {
+                            const allItems = await response.json();
+                            // Filtrar apenas items não reclamados
+                            items = allItems.filter(item => !claimedItems.includes(item.id));
+                        } else {
+                            // Se nem o JSON funcionar, usar dados padrão
+                            items = [
+                                {
+                                    id: 1,
+                                    title: "Carteira de couro marrom",
+                                    description: "Carteira encontrada no pátio da escola. Contém documentos.",
+                                    image: "images/carteira-marrom-001.jpg",
+                                    found_at: "2024-10-20",
+                                    location: "Pátio principal"
+                                },
+                                {
+                                    id: 2,
+                                    title: "Óculos de sol Ray-Ban",
+                                    description: "Óculos escuros encontrados na quadra esportiva.",
+                                    image: "images/oculos-rayban-002.jpg",
+                                    found_at: "2024-10-21",
+                                    location: "Quadra de esportes"
+                                },
+                                {
+                                    id: 3,
+                                    title: "Chaveiro do Batman",
+                                    description: "Chaveiro com 3 chaves encontrado no corredor.",
+                                    image: "images/chaves-batman-003.jpg",
+                                    found_at: "2024-10-22",
+                                    location: "Corredor do 2º andar"
+                                }
+                            ];
+                        }
+                    } catch (error) {
+                        console.log('📋 Usando dados de demonstração');
+                        items = [];
                     }
                 }
                 
