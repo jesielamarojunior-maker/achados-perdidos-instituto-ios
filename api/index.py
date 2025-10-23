@@ -3,11 +3,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
 import json
-import os
 from datetime import datetime
 import uuid
+from mangum import Mangum
 
-app = FastAPI(title="Achados e Perdidos API", version="1.0.0")
+app = FastAPI()
 
 # Configurar CORS para permitir requisições do frontend
 app.add_middleware(
@@ -281,5 +281,5 @@ async def reset_data():
     _data_store = DEFAULT_DATA.copy()
     return {"message": "Dados resetados para padrão original"}
 
-# Exportar app para Vercel
-app = app
+# Handler para Vercel com Mangum
+handler = Mangum(app)
