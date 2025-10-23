@@ -100,7 +100,7 @@ def save_data(data):
 async def root():
     return {"message": "API Achados e Perdidos - Instituto da Oportunidade Social", "status": "online"}
 
-@app.get("/api/items", response_model=List[Item])
+@app.get("/items", response_model=List[Item])
 async def get_items():
     """Buscar todos os items não reclamados"""
     data = get_data()
@@ -112,7 +112,7 @@ async def get_items():
     
     return available_items
 
-@app.post("/api/items", response_model=Item)
+@app.post("/items", response_model=Item)
 async def create_item(item: Item):
     """Criar novo item"""
     data = get_data()
@@ -130,7 +130,7 @@ async def create_item(item: Item):
     save_data(data)
     return item
 
-@app.delete("/api/items/{item_id}")
+@app.delete("/items/{item_id}")
 async def delete_item(item_id: int):
     """Deletar item"""
     data = get_data()
@@ -154,13 +154,13 @@ async def delete_item(item_id: int):
 
 # ========== ENDPOINTS DOS COMENTÁRIOS ==========
 
-@app.get("/api/items/{item_id}/comments")
+@app.get("/items/{item_id}/comments")
 async def get_comments(item_id: int):
     """Buscar comentários de um item"""
     data = get_data()
     return data["comments"].get(str(item_id), [])
 
-@app.post("/api/items/{item_id}/comments")
+@app.post("/items/{item_id}/comments")
 async def add_comment(item_id: int, comment: Comment):
     """Adicionar comentário a um item"""
     data = get_data()
@@ -186,7 +186,7 @@ async def add_comment(item_id: int, comment: Comment):
 
 # ========== ENDPOINTS DOS CLAIMS ==========
 
-@app.post("/api/items/{item_id}/claim")
+@app.post("/items/{item_id}/claim")
 async def claim_item(item_id: int, claim: Claim):
     """Reclamar um item"""
     data = get_data()
@@ -209,7 +209,7 @@ async def claim_item(item_id: int, claim: Claim):
     save_data(data)
     return {"message": "Item reclamado com sucesso", "claim": claim}
 
-@app.get("/api/claimed-items")
+@app.get("/claimed-items")
 async def get_claimed_items():
     """Buscar items reclamados (admin)"""
     data = get_data()
@@ -225,7 +225,7 @@ async def get_claimed_items():
     
     return claimed_items
 
-@app.post("/api/items/{item_id}/restore")
+@app.post("/items/{item_id}/restore")
 async def restore_item(item_id: int):
     """Devolver item ao feed"""
     data = get_data()
@@ -239,7 +239,7 @@ async def restore_item(item_id: int):
     save_data(data)
     return {"message": "Item devolvido ao feed"}
 
-@app.post("/api/items/{item_id}/deliver")
+@app.post("/items/{item_id}/deliver")
 async def confirm_delivery(item_id: int):
     """Confirmar entrega do item (remove definitivamente)"""
     data = get_data()
@@ -261,7 +261,7 @@ async def confirm_delivery(item_id: int):
 
 # ========== ENDPOINT DE AUTENTICAÇÃO ==========
 
-@app.post("/api/auth/login")
+@app.post("/auth/login")
 async def login(login_request: LoginRequest):
     """Verificar senha do admin"""
     # Senha personalizada para Instituto da Oportunidade Social
@@ -274,9 +274,12 @@ async def login(login_request: LoginRequest):
 
 # ========== ENDPOINT DE RESET ==========
 
-@app.post("/api/reset")
+@app.post("/reset")
 async def reset_data():
     """Resetar dados para padrão original"""
     global _data_store
     _data_store = DEFAULT_DATA.copy()
     return {"message": "Dados resetados para padrão original"}
+
+# Exportar app para Vercel
+app = app
