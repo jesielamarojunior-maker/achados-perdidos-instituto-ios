@@ -125,7 +125,7 @@ async def create_item(item: Item):
     item.created_at = datetime.now().isoformat()
     
     # Adicionar à lista
-    data["items"].append(item.dict())
+    data["items"].append(item.model_dump())
     
     save_data(data)
     return item
@@ -179,7 +179,7 @@ async def add_comment(item_id: int, comment: Comment):
     if str(item_id) not in data["comments"]:
         data["comments"][str(item_id)] = []
     
-    data["comments"][str(item_id)].append(comment.dict())
+    data["comments"][str(item_id)].append(comment.model_dump())
     
     save_data(data)
     return comment
@@ -204,7 +204,7 @@ async def claim_item(item_id: int, claim: Claim):
     claim.claim_date = datetime.now().isoformat()
     
     data["claimed_items"].append(item_id)
-    data["claimed_data"][str(item_id)] = claim.dict()
+    data["claimed_data"][str(item_id)] = claim.model_dump()
     
     save_data(data)
     return {"message": "Item reclamado com sucesso", "claim": claim}
